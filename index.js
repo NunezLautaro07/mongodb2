@@ -3,9 +3,8 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const bodyParser = require('body-parser');
 const app = express();
-const port = 3000;
+const port = process.env.port || 3000;
 
-process.env.DB
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -18,7 +17,7 @@ mongoose.connect(process.env.DB, {
 const productoSchema = new mongoose.Schema({
         nombre: String,
         precio: Number,
-        descripción: String
+        descripcion: String,
         });
 
 const Producto = mongoose.model('Producto', productoSchema);
@@ -38,7 +37,7 @@ app.get('/productos', async (req, res) => {
     app.post('/productos', async (req, res) => {
     try {
     const { nombre, precio, descripcion } = req.body;
-    const nuevoProducto = new Producto({ nombre, precio, descripcion });
+    const nuevoProducto = new Producto({ nombre, precio, descripcion});
     await nuevoProducto.save();
     res.status(201).json(nuevoProducto);
     } catch (error) {
@@ -49,12 +48,15 @@ app.get('/productos', async (req, res) => {
     
     // Operación para actualizar un producto por ID
     app.put('/productos/:id', async (req, res) => {
-    
+        const updateProducto = await Producto.findByIdAndUpdate(req.params.id,
+            req.body, { new: true });
+            res.json(updateProducto);
     });
     
     // Operación para eliminar un producto por ID
     app.delete('/productos/:id', async (req, res) => {
-    
+        const deletedProducto = await Producto.findBIdAndDelete(req.params.id);
+        res.json(deletedProducto);
     });
     app.listen(port, () => {
         console.log(`Servidor Express escuchando en el puerto ${port}`);
