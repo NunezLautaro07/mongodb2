@@ -10,7 +10,13 @@ app.use(bodyParser.json());
 
 mongoose.connect(process.env.DB, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch(err => {
+    console.error('Error connecting to MongoDB:', err.message);
 });
 
 const productoSchema = new mongoose.Schema({
@@ -22,7 +28,7 @@ const productoSchema = new mongoose.Schema({
 const Producto = mongoose.model('Producto', productoSchema);
 
 // Operación para obtener todos los productos
-app.get('/', async (req, res) => {
+app.get('/productos', async (req, res) => {
     try {
         const productos = await Producto.find();
         res.json(productos);
@@ -33,7 +39,7 @@ app.get('/', async (req, res) => {
 });
 
 // Operación para agregar un nuevo producto
-app.post('/', async (req, res) => {
+app.post('/productos', async (req, res) => {
     try {
         const { nombre, precio, descripcion } = req.body;
         const nuevoProducto = new Producto({ nombre, precio, descripcion });
@@ -46,7 +52,7 @@ app.post('/', async (req, res) => {
 });
 
 // Operación para actualizar un producto por ID
-app.put('/:id', async (req, res) => {
+app.put('/productos/:id', async (req, res) => {
     try {
         const updateProducto = await Producto.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(updateProducto);
@@ -57,7 +63,7 @@ app.put('/:id', async (req, res) => {
 });
 
 // Operación para eliminar un producto por ID
-app.delete('/:id', async (req, res) => {
+app.delete('/productos/:id', async (req, res) => {
     try {
         const deletedProducto = await Producto.findByIdAndDelete(req.params.id);
         res.json(deletedProducto);
